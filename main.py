@@ -1,12 +1,12 @@
 import os
 import file_handle
 from player import Player
+import balancing
 
 player_list = []
 lobby_list = []
 
 def main():
-    print("Hello World")
     update_player_list()
     user_input()
 
@@ -16,6 +16,7 @@ def user_input():
     add player
     remove player
     <playerindex> (adds / removes from lobby)
+    balance
     exit \n"""
     print(welcome)
     print(commands)
@@ -23,7 +24,7 @@ def user_input():
     while(1):
         print("\nplayer list: ")
         for index in range(len(player_list)):
-            print("{0} \tName: {1:10} \tPositions: {2:40} \tExtern MMR: {3:10} " + \
+            print("{0} \tName: {1:10} \tPositions: {2:20} \tExtern MMR: {3:10} " + \
                 "\tIntern MMR: {4:10} \tDrafter: {5:10} \tWins: {6:5} \tLosses {7:5}").format(
                         index, 
                         player_list[index].name,
@@ -35,7 +36,7 @@ def user_input():
                         player_list[index].losses
                         )
         print("\n")
-        print("current lobby: {} \n").format(lobby_list)
+        print("current lobby: {}\n").format(lobby_list)
         #os.system('clear')
 
         user_input = str(raw_input("$ "))
@@ -48,7 +49,13 @@ def user_input():
             positions = str(raw_input("positions: "))
             mmr = str(raw_input("mmr: "))
             drafter = str(raw_input("drafter: "))
-            new_player = Player(name, positions.split(" "), int(mmr), 0, bool(drafter), 0, 0)
+            new_player = Player(name, 
+                                [int(x) for x in positions.split(" ")], 
+                                int(mmr), 
+                                0, 
+                                int(drafter), 
+                                0, 
+                                0)
             player_list.append(new_player)
             file_handle.add_player(new_player)
             print("Player created! {}, {}, {}, {} \n").format(
@@ -64,6 +71,38 @@ def user_input():
                     player_list.remove(player)
                     file_handle.remove_player(player)
                     print("Player removed! {} \n").format(name)
+
+        elif user_input.startswith("balance"):
+            if len(lobby_list) < 10:
+                print "too few people in lobby! \n"
+                continue
+            elif len(lobby_list) > 10:
+                print "too many people in lobby! \n"
+                continue
+            drafters = 0
+            for index in lobby_list:
+                if player_list[index].drafter == 1:
+                    drafters += 1
+            if drafters < 2:
+                print "too few drafters! \n"
+                continue
+            game_list = []
+            for index in lobby_list:
+                game_list.append(player_list[index])
+            matchup = balancing.balance(game_list)
+            matchup.get_teams()
+            print("TEAM 1: \t{} \tTEAM 2: \t{}").format(matchup.team_1, matchup.team_2)
+            print("MATCHUP SCORE: \t{}").format(matchup.score)
+            if not matchup.get_team_info():
+                print("something went wrong with the matchup! \n")
+            print("TEAM 1 HAS: \t{} mmr \t{} position offset " + \
+                    "\tTEAM 2 HAS: \t{} mmr\t{} position offset").format(
+                    matchup.team_1_mmr, matchup.team_1_pos,
+                    matchup.team_2_mmr, matchup.team_2_pos)
+            print("TOTAL OFFSET IS: {} \tMMR DIFFERENCE IS: {}\t OFFSET DIFFERENCE IS: {}\n").format(
+                    matchup.pos_offset, 
+                    abs(matchup.team_1_mmr - matchup.team_2_mmr),
+                    abs(matchup.team_1_pos - matchup.team_2_pos))
 
         else:
             try:
