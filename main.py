@@ -21,7 +21,7 @@ def user_input():
     <playerindex> (adds / removes from lobby)
     balance
     print
-    reset intern mmr
+    reset stats
     exit \n"""
     config = ("mmr_reduction_list = {}, pos_reduction_list = {}, heuristics_weights = {}, player_rewards = {} \t").format(
         mmr_reduction_list, pos_reduction_list, heuristics_weights, player_rewards)
@@ -176,11 +176,13 @@ def user_input():
             print("\n")
             print("current lobby: {}\n").format(lobby_list)
 
-        elif user_input.startswith("reset intern mmr"):
+        elif user_input.startswith("reset stats"):
             dobble_check = str(raw_input("are you sure? \n"))
             if dobble_check == "y" or dobble_check == "yes":
                 for player in player_list:
                     player.intern_mmr = 0
+                    player.wins = 0
+                    player.losses = 0
                 file_handle.reset_stats(player_list)
 
         else:

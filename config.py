@@ -11,7 +11,7 @@ mmr_reduction_list = [0, 0.01, 0.03, 0.06, 0.10] #%
 # 40 total position offset is equal to
 # 100 mmr difference is equal to
 # 3 team position offset
-heuristics_weights = [5, 1, 33.33]
+heuristics_weights = [10, 1, 33.33]
 
 # THESE ARE PLAYER REWARDS
 # first win is 100 points and so on
