@@ -2,7 +2,9 @@ import os
 import file_handle
 from player import Player
 import balancing
-from config import mmr_reduction_list, pos_reduction_list, heuristics_weights
+from config import mmr_reduction_list, pos_reduction_list, heuristics_weights, player_rewards
+import time
+import json
 
 player_list = []
 lobby_list = []
@@ -18,9 +20,11 @@ def user_input():
     remove player
     <playerindex> (adds / removes from lobby)
     balance
+    print
+    reset intern mmr
     exit \n"""
-    config = ("mmr_reduction_list = {} \tpos_reduction_list = {} \theuristics_weights = {} \t").format(
-        mmr_reduction_list, pos_reduction_list, heuristics_weights)
+    config = ("mmr_reduction_list = {}, pos_reduction_list = {}, heuristics_weights = {}, player_rewards = {} \t").format(
+        mmr_reduction_list, pos_reduction_list, heuristics_weights, player_rewards)
     print(welcome)
     print(commands)
     print(config)
@@ -39,6 +43,7 @@ def user_input():
                         player_list[index].wins,
                         player_list[index].losses
                         )
+
         print("\n")
         print("current lobby: {}\n").format(lobby_list)
         #os.system('clear')
@@ -90,23 +95,93 @@ def user_input():
             if drafters < 2:
                 print "too few drafters! \n"
                 continue
+
             game_list = []
             for index in lobby_list:
                 game_list.append(player_list[index])
+            start = time.time()        
             matchup = balancing.balance(game_list)
+            end = time.time()
             matchup.get_teams()
-            print("TEAM 1: \t{} \tTEAM 2: \t{}").format(matchup.team_1, matchup.team_2)
-            print("MATCHUP SCORE: \t{}").format(matchup.score)
-            if not matchup.get_team_info():
-                print("something went wrong with the matchup! \n")
-            print("TEAM 1 HAS: \t{} mmr \t{} position offset " + \
-                    "\tTEAM 2 HAS: \t{} mmr\t{} position offset").format(
-                    matchup.team_1_mmr, matchup.team_1_pos,
-                    matchup.team_2_mmr, matchup.team_2_pos)
-            print("TOTAL OFFSET IS: {} \tMMR DIFFERENCE IS: {}\t OFFSET DIFFERENCE IS: {}\n").format(
-                    matchup.pos_offset, 
+            team_1 = matchup.team_1_players
+            positions_1 = matchup.team_1_positions
+            drafters_1 = matchup.team_1_drafters
+            team_2 = matchup.team_2_players
+            positions_2 = matchup.team_2_positions
+            drafters_2 = matchup.team_2_drafters
+
+            # PRINT THE DRAFT!
+            print("Balancing took {} seconds").format(end - start)
+            print("TEAM 1: \t\t{0:15} {1}, \t{2:15} {3}, \t{4:15} {5}, " + \
+                "\t{6:15} {7}, \t{8:15} {9}").format(
+                        team_1[0] + ":",
+                        positions_1[0],
+                        team_1[1] + ":",
+                        positions_1[1],
+                        team_1[2] + ":",
+                        positions_1[2],
+                        team_1[3] + ":",
+                        positions_1[3],
+                        team_1[4] + ":",
+                        positions_1[4])
+            print("TEAM 2: \t\t{0:15} {1}, \t{2:15} {3}, \t{4:15} {5}, " + \
+                "\t{6:15} {7}, \t{8:15} {9}").format(
+                        team_2[0] + ":",
+                        positions_2[0],
+                        team_2[1] + ":",
+                        positions_2[1],
+                        team_2[2] + ":",
+                        positions_2[2],
+                        team_2[3] + ":",
+                        positions_2[3],
+                        team_2[4] + ":",
+                        positions_2[4]
+                        )
+            print("TEAM 1 DRAFTERS: \t{0:100}").format(json.dumps(drafters_1)) 
+            print("TEAM 2 DRAFTERS: \t{0:100}").format(json.dumps(drafters_2)) 
+            print("TEAM 1 MMR: \t\t{0} \tTEAM 1 POSITION OFFSET: \t{1}").format(
+                    matchup.team_1_mmr, matchup.team_1_pos_offset)
+            print("TEAM 2 MMR: \t\t{0} \tTEAM 2 POSITION OFFSET: \t{1}").format(
+                    matchup.team_2_mmr, matchup.team_2_pos_offset)
+            print("TOTAL POSITION OFFSET: \t{0} \t\tMMR DIFFERENCE: \t\t{1} \tTEAM POSITION OFFSET DIFFERENCE: \t{2}").format(
+                    matchup.pos_offset,
                     abs(matchup.team_1_mmr - matchup.team_2_mmr),
-                    abs(matchup.team_1_pos - matchup.team_2_pos))
+                    abs(matchup.team_1_pos_offset - matchup.team_2_pos_offset))
+            print("MATCHUP SCORE: \t\t{0} \n").format(matchup.score)
+
+            winning_team = str(raw_input("which team won? \n"))
+            if int(winning_team) == 1:
+                for player in matchup.players:
+                    if player.name in matchup.team_1_players:
+                        player.win_match()
+                    elif player.name in matchup.team_2_players:
+                        player.lose_match()
+            elif int(winning_team) == 2:
+                for player in matchup.players:
+                    if player.name in matchup.team_2_players:
+                        player.win_match()
+                    elif player.name in matchup.team_1_players:
+                        player.lose_match()
+            file_handle.save_match(matchup.players)
+
+        elif user_input.startswith("print"):
+            for index in range(len(player_list)):
+                print("{0} \tName: {1:10} \tPositions: {2:20} \tDrafter: {3:10} \tWins: {4:5} ").format(
+                            index, 
+                            player_list[index].name,
+                            player_list[index].positions,
+                            player_list[index].drafter,
+                            player_list[index].wins
+                            )
+            print("\n")
+            print("current lobby: {}\n").format(lobby_list)
+
+        elif user_input.startswith("reset intern mmr"):
+            dobble_check = str(raw_input("are you sure? \n"))
+            if dobble_check == "y" or dobble_check == "yes":
+                for player in player_list:
+                    player.intern_mmr = 0
+                file_handle.reset_stats(player_list)
 
         else:
             try:
@@ -116,6 +191,7 @@ def user_input():
                 else:
                     lobby_list.remove(val)
             except:
+                print(commands)
                 continue
 
 def update_player_list():

@@ -53,3 +53,31 @@ def check_if_empty(file):
     except:
         print("check_if_empty failed! \n")
 
+def save_match(players):
+    try:
+        check_if_empty("players.json")
+        with open("players.json", "r") as f:
+            data = json.load(f)
+            for player in players:
+                data["players"][player.name]["intern_mmr"] = player.intern_mmr
+                data["players"][player.name]["wins"] = player.wins
+                data["players"][player.name]["losses"] = player.losses
+        with open("players.json", "w") as f:
+            json.dump(data, f)
+    except:
+        print("save_match failed! \n")
+
+def reset_stats(players):
+    try:
+        check_if_empty("players.json")
+        with open("players.json", "r") as f:
+            data = json.load(f)
+            for player in players:
+                data["players"][player.name]["intern_mmr"] = 0
+                data["players"][player.name]["wins"] = 0
+                data["players"][player.name]["losses"] = 0
+        with open("players.json", "w") as f:
+            json.dump(data, f)
+    except:
+        print("reset_intern_mmr failed! \n")
+
