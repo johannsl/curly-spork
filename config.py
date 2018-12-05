@@ -8,7 +8,7 @@ mmr_reduction_list = [0, 0.01, 0.03, 0.06, 0.10] #%
 
 # THESE ARE WEIGHTS FOR THE HEURISTICS FUNCTION
 # they are based on the belief that
-# 40 total position offset is equal to
+# 10 total position offset is equal to
 # 100 mmr difference is equal to
 # 3 team position offset
 heuristics_weights = [10, 1, 33.33]
