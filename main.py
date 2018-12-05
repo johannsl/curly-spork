@@ -2,6 +2,7 @@ import os
 import file_handle
 from player import Player
 import balancing
+from config import mmr_reduction_list, pos_reduction_list, heuristics_weights
 
 player_list = []
 lobby_list = []
@@ -18,8 +19,11 @@ def user_input():
     <playerindex> (adds / removes from lobby)
     balance
     exit \n"""
+    config = ("mmr_reduction_list = {} \tpos_reduction_list = {} \theuristics_weights = {} \t").format(
+        mmr_reduction_list, pos_reduction_list, heuristics_weights)
     print(welcome)
     print(commands)
+    print(config)
 
     while(1):
         print("\nplayer list: ")
