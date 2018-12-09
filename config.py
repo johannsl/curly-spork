@@ -7,7 +7,6 @@ pos_reduction_list = [0, 1, 3, 6, 10]
 mmr_reduction_list = [0, 0.01, 0.03, 0.06, 0.10] #%
 
 # THESE ARE WEIGHTS FOR THE HEURISTICS FUNCTION
-# they are based on the belief that
 
 # version 0 - good at mmr, bad at tot pos offset
 # 40 total position offset is equal to
