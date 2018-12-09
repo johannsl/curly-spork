@@ -14,4 +14,5 @@ howto:
   8. profit
 
 Thanks to Deez Nutz for input on the nature of mmr from a statisticians point of view
+
 Thanks to Zenotha for this article on mmr https://www.reddit.com/r/DotA2/comments/2dfjge/reverseengineering_the_effects_of_average_team/
