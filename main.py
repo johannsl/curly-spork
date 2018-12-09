@@ -5,6 +5,7 @@ import balancing
 from config import mmr_reduction_list, pos_reduction_list, heuristics_weights, player_rewards
 import time
 import json
+from copy import deepcopy
 
 player_list = []
 lobby_list = []
@@ -22,9 +23,10 @@ def user_input():
     balance
     print
     reset stats
+    set config
     exit \n"""
     config = ("mmr_reduction_list = {}, pos_reduction_list = {}, heuristics_weights = {}, player_rewards = {} \t").format(
-        mmr_reduction_list, pos_reduction_list, heuristics_weights, player_rewards)
+                mmr_reduction_list, pos_reduction_list, heuristics_weights, player_rewards)
     print(welcome)
     print(commands)
     print(config)
@@ -185,6 +187,14 @@ def user_input():
                     player.losses = 0
                 file_handle.reset_stats(player_list)
 
+        elif user_input.startswith("set config"):
+            tot_pos_weight = float(raw_input("tot pos weight: "))
+            mmr_diff_weight = float(raw_input("mrr diff weight: "))
+            pos_diff_weight = float(raw_input("pos diff weight: "))
+            heuristics_weights[0] = tot_pos_weight
+            heuristics_weights[1] = mmr_diff_weight
+            heuristics_weights[2] = pos_diff_weight
+
         else:
             try:
                 val = int(user_input)
@@ -193,7 +203,10 @@ def user_input():
                 else:
                     lobby_list.remove(val)
             except:
+                config = ("mmr_reduction_list = {}, pos_reduction_list = {}, heuristics_weights = {}, player_rewards = {} \t").format(
+                    mmr_reduction_list, pos_reduction_list, heuristics_weights, player_rewards)
                 print(commands)
+                print(config)
                 continue
 
 def update_player_list():
