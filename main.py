@@ -104,6 +104,9 @@ def user_input():
             start = time.time()        
             matchup = balancing.balance(game_list)
             end = time.time()
+            if matchup == None:
+                print("No matchup found!")
+                break
             matchup.get_teams()
             team_1 = matchup.team_1_players
             positions_1 = matchup.team_1_positions
