@@ -2,8 +2,22 @@ from cmd import Cmd
 
 from printer import welcome
 
-class CurlySpork(Cmd):
+def rehydrate_player_list():
+     storage_players = file_handle.get_all_players()
+     if players != {} and not player_list:
+         for player in storage_players:
+             new_player = Player(
+                 storage_players[db_player]["name"],
+                 players[db_player]["positions"],
+                 players[db_player]["extern_mmr"],
+                 players[db_player]["intern_mmr"],
+                 players[db_player]["drafter"],
+                 players[db_player]["wins"],
+                 players[db_player]["losses"])
+             player_list.append(new_player)
+         print("playerlist in ram updated! \n")
 
+class CurlySpork(Cmd):
     player_list = []
     lobby_list = []
      

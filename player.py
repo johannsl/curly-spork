@@ -10,6 +10,10 @@ class Player:
         self.drafter = drafter
         self.wins = wins
         self.losses = losses
+        self.test = self.test()
+
+    def test(self):
+        print("TEST!")
 
     def calculate_mmr_for_pos(self, position):
         base_mmr = self.extern_mmr + self.intern_mmr
